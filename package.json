@@ -1,0 +1,39 @@
+{
+  "name": "remote-device-connector",
+  "version": "1.0.0",
+  "description": "This project is help to manage the smart home devices like TV, Bulb, Mirror etc.",
+  "main": "index.js",
+  "scripts": {
+    "devStart": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mr-ramesh/remote-device-manager.git"
+  },
+  "keywords": [
+    "remote-devices",
+    "IOT-devices",
+    "smart-devices",
+    "smart",
+    "home",
+    "appliances"
+  ],
+  "author": "Ramesh Murugan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mr-ramesh/remote-device-manager/issues"
+  },
+  "homepage": "https://github.com/mr-ramesh/remote-device-manager#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "ini": "^1.3.5",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.5.9",
+    "mongoose": "^5.9.26"
+  }
+}

@@ -1,0 +1,39 @@
+### Returns the given device details
+GET http://localhost:6669/device/read?id=a9b47f330080
+
+### Create the new device
+POST http://localhost:6669/device/create
+Content-Type: application/json
+
+{
+  "devices": [{
+        "device_id":"a9b47f330080",
+        "name":"device001",
+        "devType":"AA",
+        "currentState":1,
+        "lastUpdated":"1588214153"
+    }]  
+}
+
+### Create the new device
+POST http://localhost:6669/device/share?id=a9b47f330080
+Content-Type: application/json
+{
+  "userId": "ramesh"
+}
+
+### Edit the existing device details
+PUT http://localhost:6669/device/edit?id=a9b47f330080
+Content-Type: application/json
+{
+    "name":"device006",
+    "devType":"AA",
+    "currentState":1,
+    "lastUpdated":"1588214153"
+}
+
+### Update the state of the device
+PUT http://localhost:6669/device/currentState?id=a9b47f330080&state=0
+
+### Returns the device details
+DELETE http://localhost:6669/device/read?id=a9b47f330080
