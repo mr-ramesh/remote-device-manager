@@ -17,10 +17,13 @@ const UserSchema = new mongoose.Schema({
   },
   registeredDate: {
     type: Date,
+    required: true
   },
   lastLogin: {
     type: Date,
   }
 });
 
-mongoose.model('User', UserSchema);
+const UserModel = mongoose.model('User', UserSchema);
+
+module.exports = UserModel;

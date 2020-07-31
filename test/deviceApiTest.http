@@ -1,5 +1,6 @@
 ### Returns the given device details
 GET http://localhost:6669/device/read?id=a9b47f330080
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkZXZpY2VzIjpbXSwiX2lkIjoiNWYyNDRlZmRkZThmZmUwZmU4MGFlYjNiIiwidXNlcl9pZCI6IjcuNjMwMDE5MjE1MDM1NTMxIiwiZW1haWwiOiJyYW1lc2hAbWFpbC5jb20iLCJyZWdpc3RlcmVkRGF0ZSI6IjIwMjAtMDctMzFUMTc6MDQ6MDkuNDI0WiIsIl9fdiI6MCwiaWQiOiI1ZjI0NGVmZGRlOGZmZTBmZTgwYWViM2IiLCJpYXQiOjE1OTYyMjk1MjV9.3kaSpxjicMBz-styTsc-Suk24wg4OAj_otxOIp1dwcg
 
 ### Create the new device
 POST http://localhost:6669/device/create

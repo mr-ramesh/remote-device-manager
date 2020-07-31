@@ -1,0 +1,17 @@
+### Signup the user
+POST http://localhost:6669/signup
+Content-Type: application/json
+
+{
+  "email" : "ramesh@mail.com",
+  "pass": "ram@12"
+}
+
+### Login the user
+POST http://localhost:6669/login
+Content-Type: application/json
+
+{
+  "email" : "ramesh@mail.com",
+  "pass": "ram@12"
+}
