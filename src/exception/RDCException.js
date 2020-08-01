@@ -3,9 +3,11 @@ const { Error } = require("mongoose");
 class RDCException extends Error{
 
     constructor(exception) {
-        this.name = "RDCExcption";
+        super(exception.message)
         this.message = exception.message;
-        this.statusCode = exception.statusCode
+        this.statusCode = exception.code
     }
 
 }
+
+module.exports = RDCException;

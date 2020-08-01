@@ -1,0 +1,54 @@
+<style>
+    .dropbtn {
+        background-color: #0062cc;
+        color: white;
+        padding: 16px;
+        font-size: 20px;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 160px;
+    }
+
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #ddd;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+</style>
+
+<div class="d-flex justify-content-center" style="margin-top:25%;margin-bottom:25%">
+    <a class="btn btn-primary btn-lg active" href="/login">Login</a>&nbsp;
+    <a class="btn btn-primary btn-lg active" href="/signup">Signup</a>&nbsp;
+    <div class="dropdown">
+        {{!-- <button class="btn btn-primary btn-lg active">Manager</button> --}}
+        <a class="btn btn-primary btn-lg active" href="/device/manager">Manager</a>
+        <div class="dropdown-content">
+            <a href="/device/manager/cd">Create Device</a>
+            <a href="#">Share Device</a>
+            <a href="#">Get Device</a>
+            <a href="#">Update Device</a>
+            <a href="#">Update Device State</a>
+            <a href="#">Delete Device</a>
+        </div>
+    </div>
+</div>

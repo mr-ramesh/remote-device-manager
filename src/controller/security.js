@@ -1,28 +1,48 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const SecurityRepository = require('../repository/das/BaseSecurityRepository');
+const SecurityRepository = require("../repository/das/BaseSecurityRepository");
+const common = require("../constants/common");
 const repository = new SecurityRepository();
 
-router.post('/signup', async (req, res) => {
-    let {email, pass} = req.body;
-    let moduleResponse = await repository.signup(email, pass);
-    if(moduleResponse.code === 200) {
-        moduleResponse = res.redirect('/login');
-    }
-    res.status(response.code).json(response);
+router.get("/signup", (req, res) => {
+  res.render("form", { action: "signup", buttonLabel: "Register" });
 });
 
-router.post('/login', async (req, res) => {
-    let {email, pass} = req.body;
-    let response = await repository.login(email, pass);
-    if(response.code === 200) {
-        console.info(repository.token);
-        res.status(200).json(repository.token);
-    } else {
-    res.status(response.code).json(response);
+router.post("/signup", async (req, res) => {
+  let { email, pass } = req.body;
+  await repository
+    .signup(email, pass)
+    .then((resp) => {
+      res.redirect("/login");
+    })
+    .catch((err) => {
+      res.status(err.code).json(err);
+    });
+});
 
-    }
+router.get("/login", (req, res) => {
+  res.render("form", {
+    action: "login",
+    buttonLabel: "Login",
+    message: "Please login to continue",
+    messageClass: "alert-danger",
+  });
+});
+
+router.post("/login", async (req, res) => {
+  let { email, pass } = req.body;
+  await repository
+    .login(email, pass)
+    .then((resp) => {
+      console.info(repository.token);
+      res.cookie('AuthToken', repository.token);
+      res.redirect("/device/manager");
+    })
+    .catch((err) => {
+      let code = err && err.code ? err.code : 500;
+      res.status(code).json(err);
+    });
 });
 
 module.exports = router;

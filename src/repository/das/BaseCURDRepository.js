@@ -1,52 +1,63 @@
-const DeviceModel = require("../model/Device");
 const responseConstants = require("../../constants/response");
 
 class BaseCURDRepository {
-  constructor() {
-    this.model = new DeviceModel();
+  constructor(model) {
+    this.model = model;
   }
 
-  create(data) {
-    return new Promise((resolve, reject) => {
-      try {
-        this.model.device_id = Math.random() * 10;
-        this.model.name = data.name;
-        this.model.devType = data.devType;
-        this.model.currentState = data.currentState;
-        this.model.lastUpdated = new Date();
-        this.model.save();
+  create(docData) {
+    return new Promise(async (resolve, reject) => {
+      await this.model.collection.insertMany(docData, (err, docs) => {
+        if (err) reject(responseConstants.SERVER_ERROR);
         resolve(responseConstants.SUCCESS);
+      });
+    });
+  }
+
+  read(filter) {
+    return new Promise(async (resolve, reject) => {
+      await this.model.find(filter, (err, docs) => {
+        if (err) reject(responseConstants.SERVER_ERROR);
+        docs = docs ? docs.toJSON({ getters: true }) : {};
+        resolve(docs);
+      });
+    });
+  }
+
+  readWithDiffrentData(filterField, filterData) {
+    return new Promise(async (resolve, reject) => {
+      let query = {};
+      query[filterField] = { $in: filterData };
+      await this.model.find(query, (err, docs) => {
+        if (err) reject(responseConstants.SERVER_ERROR);
+        docs = docs ? docs.toJSON({ getters: true }) : {};
+        resolve(docs);
+      });
+    });
+  }
+
+  update(filter, dataToUpdate) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let doc = await this.model.findOneAndUpdate(filter, dataToUpdate, {
+          new: true,
+        });
+        resolve(doc);
       } catch (error) {
-        console.error("Unable to create device: ", error);
         reject(responseConstants.SERVER_ERROR);
       }
     });
   }
 
-  share(userId, deviceId) {
-    return new Promise((resolve, reject) => {});
-  }
-
-  read(dataFlag) {
-    return new Promise((resolve, reject) => {
-        DeviceModel.find(dataFlag, (err, devices) => {
-            if(err) reject(responseConstants.SERVER_ERROR);
-            this.devices = devices.toJSON({ getters: true });
-            resolve(responseConstants.SUCCESS);
-        })
+  delete(filter) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.model.find(filter).remove().exec();
+        resolve(responseConstants.SUCCESS);
+      } catch(error) {
+        reject(responseConstants.SERVER_ERROR);
+      }
     });
-  }
-
-  update(dataFlag, dataToBeUpdated) {
-    return new Promise((resolve, reject) => {});
-  }
-
-  updateDeviceState(dataFlag, newState) {
-    return new Promise((resolve, reject) => {});
-  }
-
-  delete(id) {
-    return new Promise((resolve, reject) => {});
   }
 }
 

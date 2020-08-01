@@ -1,9 +1,14 @@
+@host = "localhost"
+@port = 666
+@pathPrefix = "device"
+
+
 ### Returns the given device details
-GET http://localhost:6669/device/read?id=a9b47f330080
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkZXZpY2VzIjpbXSwiX2lkIjoiNWYyNDRlZmRkZThmZmUwZmU4MGFlYjNiIiwidXNlcl9pZCI6IjcuNjMwMDE5MjE1MDM1NTMxIiwiZW1haWwiOiJyYW1lc2hAbWFpbC5jb20iLCJyZWdpc3RlcmVkRGF0ZSI6IjIwMjAtMDctMzFUMTc6MDQ6MDkuNDI0WiIsIl9fdiI6MCwiaWQiOiI1ZjI0NGVmZGRlOGZmZTBmZTgwYWViM2IiLCJpYXQiOjE1OTYyMjk1MjV9.3kaSpxjicMBz-styTsc-Suk24wg4OAj_otxOIp1dwcg
+GET http://{host}:{port}/{pathPrefix}/read?id=a9b47f330080
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkZXZpY2VzIjpbXSwiX2lkIjoiNWYyNDRlZmRkZThmZmUwZmU4MGFlYjNiIiwidXNlcl9pZCI6IjcuNjMwMDE5MjE1MDM1NTMxIiwiZW1haWwiOiJyYW1lc2hAbWFpbC5jb20iLCJyZWdpc3RlcmVkRGF0ZSI6IjIwMjAtMDctMzFUMTc6MDQ6MDkuNDI0WiIsIl9fdiI6MCwiaWQiOiI1ZjI0NGVmZGRlOGZmZTBmZTgwYWViM2IiLCJpYXQiOjE1OTYyNzQ3MTd9.WxMFozzuPOQBJX2SP9GDstUTEIfCPtdfyAgWgWpJHiE
 
 ### Create the new device
-POST http://localhost:6669/device/create
+POST http://{host}:{port}/{pathPrefix}/create
 Content-Type: application/json
 
 {
@@ -17,14 +22,14 @@ Content-Type: application/json
 }
 
 ### Create the new device
-POST http://localhost:6669/device/share?id=a9b47f330080
+POST http://{host}:{port}/{pathPrefix}/share?id=a9b47f330080
 Content-Type: application/json
 {
   "userId": "ramesh"
 }
 
 ### Edit the existing device details
-PUT http://localhost:6669/device/edit?id=a9b47f330080
+PUT http://{host}:{port}/{pathPrefix}/edit?id=a9b47f330080
 Content-Type: application/json
 {
     "name":"device006",
@@ -34,7 +39,7 @@ Content-Type: application/json
 }
 
 ### Update the state of the device
-PUT http://localhost:6669/device/currentState?id=a9b47f330080&state=0
+PUT http://{host}:{port}/{pathPrefix}/currentState?id=a9b47f330080&state=0
 
 ### Returns the device details
-DELETE http://localhost:6669/device/read?id=a9b47f330080
+DELETE http://{host}:{port}/{pathPrefix}/read?id=a9b47f330080

@@ -1,11 +1,8 @@
-const fs = require("fs");
-const privateKEY = fs.readFileSync("./environment/private.key", "utf8");
-const publicKEY = fs.readFileSync("./environment/public.key", "utf8");
-
 const jwt = require("jsonwebtoken");
 
 const UserModel = require("../model/User");
 const responseConstants = require("../../constants/response");
+const commonConstants = require("../../constants/common");
 
 class BaseSecurityRepository {
   constructor() {
@@ -15,8 +12,8 @@ class BaseSecurityRepository {
   signup(email, password) {
     return new Promise((resolve, reject) => {
       try {
-        if (!this.getUser(email)) {
-          this.user.user_id = Math.random() * 10;
+        if (!this.getUser({ email: email })) {
+          this.user.user_id = Math.random().toString(36).substring(2);
           this.user.email = email;
           this.user.password = password;
           this.user.registeredDate = new Date();
@@ -35,24 +32,30 @@ class BaseSecurityRepository {
   login(email, password) {
     //change to get only username pass
     return new Promise(async (resolve, reject) => {
-      let user = await this.getUser(email);
-      if (user.password === password) {
-        delete user.password;
-        this.generateToken(user)
-          .then((res) => resolve(res))
-          .catch((err) => reject(err));
-      } else {
-        reject(responseConstants.UN_AUTHORIZED);
-      }
+      this.getUser({ email: email })
+        .then((user) => {
+          if (user.password === password) {
+            delete user.password;
+            this.generateToken(user)
+              .then((res) => resolve(res))
+              .catch((err) => reject(err));
+          } else {
+            reject(responseConstants.UN_AUTHORIZED);
+          }
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
 
-  getUser(email) {
+  getUser(userData) {
     return new Promise((resolve, reject) => {
-      UserModel.findOne({ email: email }, (err, user) => {
-        if (err) reject(null);
-        user = user.toJSON({ getters: true });
-        resolve(user);
+      UserModel.findOne(userData, (err, user) => {
+        if (user) {
+          resolve(user.toJSON({ getters: true }));
+        }
+        reject(null);
       });
     });
   }
@@ -60,7 +63,7 @@ class BaseSecurityRepository {
   generateToken(user) {
     return new Promise((resolve, reject) => {
       try {
-        this.token = jwt.sign(user, privateKEY);
+        this.token = jwt.sign(user, commonConstants.ENCRYPT_KEY);
         console.info("User loggedin successfully!");
         resolve(responseConstants.SUCCESS);
       } catch (error) {
@@ -72,9 +75,12 @@ class BaseSecurityRepository {
 
   validateToken(token) {
     return new Promise((resolve, reject) => {
-      jwt.verify(token, publicKEY, (err, user) => {
-        if (err) reject(responseConstants.UN_AUTHORIZED);
-        resolve(responseConstants.SUCCESS);
+      jwt.verify(token, commonConstants.ENCRYPT_KEY, (err, user) => {
+        if (err) {
+          console.error("Unable to process this token: ", err);
+          reject(responseConstants.UN_AUTHORIZED);
+        }
+        resolve(user);
       });
     });
   }

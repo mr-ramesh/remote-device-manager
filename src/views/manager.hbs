@@ -1,0 +1,33 @@
+<div class="justify-content-md-center" style="margin-top: 100px">
+    <label>Choose the operation you wish to do : </label><br><br>
+    <select id="operation" class="dropdown dropdown-primary" onchange="showFields()">
+        <option value="CD"> Create Device </option>
+        <option value="SD"> Share Device </option>
+        <option value="GD"> Get Devices </option>
+        <option value="UD"> Update Device </option>
+        <option value="UDS"> Update Device State</option>
+        <option value="DD"> Delete Device </option>
+    </select>
+    <br><br>
+
+    <form>
+        <p id="fields"></p>
+        <button type="submit" class="btn btn-primary"> Try it! </button>
+    </form>
+
+    <script>
+        function showFields() {
+            let fields = '';
+            let operation = document.getElementById("operation").value;
+            fields = (operation === "CD") ? "Create Device" :
+                (operation === 'SD') ? "Share Device" :
+                    (operation === 'GD') ? "Get Device" :
+                        (operation === 'UD') ? "Update Device" :
+                            (operation === 'UDS') ? "Update Device State" :
+                                (operation === 'DD') ? "Delete Device" :
+                                    "Invalid Option";
+            document.getElementById("fields").innerHTML = "Show fields for  " + fields;
+        }
+    </script>
+
+</div>

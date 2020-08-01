@@ -1,5 +1,5 @@
 ### Signup the user
-POST http://localhost:6669/signup
+POST http://localhost:666/signup
 Content-Type: application/json
 
 {
@@ -7,8 +7,11 @@ Content-Type: application/json
   "pass": "ram@12"
 }
 
+### Login Page
+GET http://localhost:666/login
+
 ### Login the user
-POST http://localhost:6669/login
+POST http://localhost:666/login
 Content-Type: application/json
 
 {
