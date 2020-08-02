@@ -3,6 +3,10 @@ module.exports = {
       message: "Done!",
       code: 200
     },
+    BAD_REQUEST: {
+      message: "Invalid request data!",
+      code: 400
+    },
     FORBIDDEN: {
       message: "Please login to proceed!",
       code: 403

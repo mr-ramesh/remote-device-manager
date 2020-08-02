@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 const SecurityRepository = require("../repository/das/BaseSecurityRepository");
-const common = require("../constants/common");
 const repository = new SecurityRepository();
 
 router.get("/signup", (req, res) => {
@@ -35,9 +34,18 @@ router.post("/login", async (req, res) => {
   await repository
     .login(email, pass)
     .then((resp) => {
-      console.info(repository.token);
-      res.cookie('AuthToken', repository.token);
-      res.redirect("/device/manager");
+      if (!resp) {
+        res.render("form", {
+          action: "signup",
+          buttonLabel: "Register",
+          message: "User not exist. Please register to continue!",
+          messageClass: "alert-danger",
+        });
+      } else {
+        console.info(repository.token);
+        res.cookie("AuthToken", repository.token);
+        res.redirect("/device/manager");
+      }
     })
     .catch((err) => {
       let code = err && err.code ? err.code : 500;

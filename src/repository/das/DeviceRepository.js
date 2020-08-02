@@ -1,30 +1,24 @@
-const DeviceModel = require("../model/Device");
 const responseConstants = require("../../constants/response");
-const BaseCURDRepository = require("./BaseCURDRepository");
-const BaseSecurityRepository = require("./BaseSecurityRepository");
+const UserRepository = require("./UserRepository");
 
 class DeviceRepository {
   constructor() {
-    this.curdRepository = new BaseCURDRepository(DeviceModel);
+    this.userRepository = new UserRepository();
   }
 
-  createDevice(devices) {
+  createDevice(user, devices) {
     return new Promise(async (resolve, reject) => {
       try {
-        let deviceModels = [];
-        devices.forEach((device) => {
-          let deviceModel = new DeviceModel();
-          deviceModel.device_id = Math.random().toString(36).substring(2);
-          deviceModel.name = device.name;
-          deviceModel.devType = device.devType;
-          deviceModel.currentState = device.currentState;
-          deviceModel.lastUpdated = new Date();
-          deviceModels.push(deviceModel);
-        });
-        await this.curdRepository.create(deviceModels).then((resp) => {
-          resp.message = "Device Created Successfully!";
-          resolve(resp);
-        });
+        await this.userRepository
+          .updateUser(
+            { user_id: user.user_id },
+            { devices: devices.validDevices }
+          )
+          .then((resp) => {
+            resp.message = "Device Created Successfully!";
+            resolve(resp);
+          })
+          .catch((err) => reject(err));
       } catch (error) {
         let errResponse = responseConstants.SERVER_ERROR;
         errResponse.message = "Unable to create device!";
@@ -34,38 +28,56 @@ class DeviceRepository {
     });
   }
 
-  shareDevice(userId, deviceId) {
+  shareDevice(userId, device) {
     return new Promise(async (resolve, reject) => {
-      await this.curdRepository
-        .update({ user_id: userId }, { devices: [deviceId] })
-        .then((resp) => resolve(resp))
+      await this.userRepository
+        .updateUser({ user_id: userId }, { devices: [device] })
+        .then((resp) => resolve(responseConstants.SUCCESS))
         .catch((err) => reject(err));
     });
   }
 
-  getDevices(filter) {
+  getDevices(userId, deviceData) {
     return new Promise(async (resolve, reject) => {
-      await this.curdRepository
-        .read(filter)
-        .then((resp) => resolve(resp))
+      await this.userRepository.getDevice("devices",  deviceData)
+        .then((devices) => {
+          let device = {};
+          if (devices && devices.length > 0) {
+            device = user.devices.filter((dev) => (dev.device_id = deviceId));
+          }
+          resolve(device);
+        })
+        .catch((err) => reject(err));
+    });
+  }
+
+  getAllDevices(filter) {
+    return new Promise(async (resolve, reject) => {
+      await this.userRepository
+        .getUser({ user_id: userId })
+        .then((user) => {
+          if (user && user.devices) {
+            resolve(user.devices);
+          }
+        })
         .catch((err) => reject(err));
     });
   }
 
   updateDevice(filter, dataToBeUpdated) {
     return new Promise(async (resolve, reject) => {
-      await this.curdRepository
+      await this.userRepository
         .update(filter, dataToBeUpdated)
-        .then((resp) => resolve(resp))
+        .then((resp) => resolve(responseConstants.SUCCESS))
         .catch((err) => reject(err));
     });
   }
 
   delete(id) {
     return new Promise(async (resolve, reject) => {
-      await this.curdRepository
-        .delete({device_id: id})
-        .then((resp) => resolve(resp))
+      await this.userRepository
+        .delete({ device_id: id })
+        .then((resp) => resolve(responseConstants.SUCCESS))
         .catch((err) => reject(err));
     });
   }

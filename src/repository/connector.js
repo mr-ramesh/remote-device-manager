@@ -17,6 +17,7 @@ class Connector {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
+    mongoose.set("useFindAndModify", false);
     return this.connection;
   }
 }

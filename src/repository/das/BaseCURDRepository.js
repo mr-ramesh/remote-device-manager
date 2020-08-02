@@ -7,10 +7,15 @@ class BaseCURDRepository {
 
   create(docData) {
     return new Promise(async (resolve, reject) => {
-      await this.model.collection.insertMany(docData, (err, docs) => {
-        if (err) reject(responseConstants.SERVER_ERROR);
-        resolve(responseConstants.SUCCESS);
-      });
+      await this.model.collection.insertMany(
+        docData,
+        { useFindAndModify: true },
+        (err, docs) => {
+          if (err) reject(responseConstants.SERVER_ERROR);
+          console.log("Inserted data : ", docs);
+          resolve(responseConstants.SUCCESS);
+        }
+      );
     });
   }
 
@@ -30,7 +35,7 @@ class BaseCURDRepository {
       query[filterField] = { $in: filterData };
       await this.model.find(query, (err, docs) => {
         if (err) reject(responseConstants.SERVER_ERROR);
-        docs = docs ? docs.toJSON({ getters: true }) : {};
+        docs = docs.length > 0 ? docs.toJSON({ getters: true }) : [];
         resolve(docs);
       });
     });
@@ -52,9 +57,9 @@ class BaseCURDRepository {
   delete(filter) {
     return new Promise(async (resolve, reject) => {
       try {
-        await this.model.find(filter).remove().exec();
+        await this.model.deleteOne(filter);
         resolve(responseConstants.SUCCESS);
-      } catch(error) {
+      } catch (error) {
         reject(responseConstants.SERVER_ERROR);
       }
     });

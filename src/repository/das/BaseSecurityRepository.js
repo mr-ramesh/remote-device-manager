@@ -10,10 +10,10 @@ class BaseSecurityRepository {
   }
 
   signup(email, password) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        if (!this.getUser({ email: email })) {
-          this.user.user_id = Math.random().toString(36).substring(2);
+        if (!await this.getUser({ email: email })) {
+          this.user.user_id = Math.random().toString(36).substring(2);;
           this.user.email = email;
           this.user.password = password;
           this.user.registeredDate = new Date();
@@ -32,15 +32,19 @@ class BaseSecurityRepository {
   login(email, password) {
     //change to get only username pass
     return new Promise(async (resolve, reject) => {
-      this.getUser({ email: email })
+      await this.getUser({ email: email })
         .then((user) => {
-          if (user.password === password) {
-            delete user.password;
-            this.generateToken(user)
-              .then((res) => resolve(res))
-              .catch((err) => reject(err));
+          if(user) {
+            if (user.password === password) {
+              delete user.password;
+              this.generateToken(user)
+                .then((res) => resolve(res))
+                .catch((err) => reject(err));
+            } else {
+              reject(responseConstants.UN_AUTHORIZED);
+            }
           } else {
-            reject(responseConstants.UN_AUTHORIZED);
+            resolve(null);
           }
         })
         .catch((err) => {
@@ -52,10 +56,12 @@ class BaseSecurityRepository {
   getUser(userData) {
     return new Promise((resolve, reject) => {
       UserModel.findOne(userData, (err, user) => {
+        if(err) reject(responseConstants.SERVER_ERROR);
         if (user) {
+          console.log("User : ", user);
           resolve(user.toJSON({ getters: true }));
         }
-        reject(null);
+        resolve(null);
       });
     });
   }
