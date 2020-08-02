@@ -1,40 +1,90 @@
-const constants = require('../../constants');
+const constants = require("../constants/common");
+const SecurtiyRepository = require("../repository/das/BaseSecurityRepository");
+const responseCosntants = require("../constants/response");
+const securityRespository = new SecurtiyRepository();
 
-function interceptor(req, res, next) {
-    if(preProcessor(req, res)) next();
-    postProcessor(res);
+const RDCException = require("../exception/RDCException");
+
+async function interceptor(req, res, next) {
+  try {
+    await preProcessor(req);
+    await next();
+  } catch (error) {
+    let response = responseCosntants.SERVER_ERROR;
+    if (error instanceof RDCException) {
+      response.code = error.statusCode;
+      response.message = error.message;
+    }
+    req.moduleResponse = response;
+    console.error("Error Response in interceptor : ", response);
+  }
+  postProcessor(req, res);
 }
 
-function preProcessor(req, res) {
-    if(requestValidator(req))
-        if(jwtValidator(req))
-            return true;
-        else
-            res.sendStatus(403); //Forbidden
-    else
-        res.sendStatus(401); //Unathorized
+async function preProcessor(req) {
+  let flag = isAuthenticationRequired(req);
+  if (flag) {
+    if (requestValidator(req)) {
+      try {
+        let user = await jwtValidator(req);
+        return (req.user = user);
+      } catch (error) {
+        throw error;
+      }
+    } else {
+      throw new RDCException(responseCosntants.UN_AUTHORIZED);
+    }
+  } else {
+    if (loginAndSignupValidation(req).code === 200) return req;
+    else throw new RDCException(responseCosntants.FORBIDDEN);
+  }
 }
 
-function postProcessor(res) {
-    res.end();
+function isAuthenticationRequired(req) {
+  let path = req.url.toString();
+  return path.includes("login") || path.includes("signup") ? false : true;
 }
 
-
-requestValidator = req => { 
-    return getTokenFromRequest(req) != null ? true : false;  
+function loginAndSignupValidation() {
+  return responseCosntants.SUCCESS;
 }
 
-jwtValidator = req => {
-    return validateToken(getTokenFromRequest(req));
+function postProcessor(req, res) {
+  let response = req.moduleResponse;
+  console.log("Here resp : ", response);
+  if (response) {
+    let code = response.code ? response.code : 500;
+    if (code === 401)
+      res.render("form", {
+        action: "login",
+        buttonLabel: "Login",
+        message: "Please login to continue",
+        messageClass: "alert-danger",
+      });
+    else res.status(code).json(response);
+  }
 }
 
-function getTokenFromRequest(req) {
-    const authHeader = req.headers[constants.AUTH_HEADER];
-    return authHeader && authHeader.split(' ')[1];
+function requestValidator(req) {
+  return req.cookies["AuthToken"] != null ? true : false;
 }
 
-function validateToken(token) {
-    
+async function jwtValidator(req) {
+  try {
+    return await validateToken(req.cookies["AuthToken"]);
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function validateToken(token) {
+  let user = await securityRespository
+    .validateToken(token)
+    .then((user) => user)
+    .catch((err) => {
+      throw new RDCException(err);
+    });
+  return user;
 }
 
 module.exports = interceptor;
