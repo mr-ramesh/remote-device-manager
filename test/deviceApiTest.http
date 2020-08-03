@@ -1,5 +1,5 @@
 ### Returns the given device details
-GET http://localhost:666/device/read?id=6boihobz9qs
+GET http://localhost:666/device/read?type=AA
 
 ### Create the new device
 POST http://localhost:666/device/create
@@ -7,17 +7,19 @@ Content-Type: application/json
 
 {
   "devices": [{
-        "name":"device001",
-        "devType":"AA",
+        "name":"device005",
+        "devType":"AC",
         "currentState":1
     }]  
 }
 
 ### Share the new device
-POST http://localhost:666/device/share?id=a9b47f330080
+POST http://localhost:666/device/share
 Content-Type: application/json
+
 {
-  "userId": "ramesh"
+  "deviceId": "msvqd5smkyp",
+  "userId": "q2roriifo3b"
 }
 
 ### Edit the existing device details
@@ -40,4 +42,4 @@ Content-Type: application/json
 }
 
 ### Returns the device details
-DELETE http://localhost:666/device/delete?id=ygdva32ga8b
+DELETE http://localhost:666/device/delete?id=msvqd5smkyp

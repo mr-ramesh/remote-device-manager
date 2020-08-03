@@ -12,7 +12,6 @@ class BaseCURDRepository {
         { useFindAndModify: true },
         (err, docs) => {
           if (err) reject(responseConstants.SERVER_ERROR);
-          console.log("Inserted data : ", docs);
           resolve(responseConstants.SUCCESS);
         }
       );
@@ -23,7 +22,9 @@ class BaseCURDRepository {
     return new Promise(async (resolve, reject) => {
       await this.model.find(filter, (err, docs) => {
         if (err) reject(responseConstants.SERVER_ERROR);
-        docs = docs ? docs.toJSON({ getters: true }) : {};
+        try {
+          docs = docs ? docs.toJSON({ getters: true }) : {};
+        } catch (err) {}
         resolve(docs);
       });
     });

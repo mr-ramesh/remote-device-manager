@@ -13,19 +13,27 @@ router.post("/signup", async (req, res) => {
   await repository
     .signup(email, pass)
     .then((resp) => {
-      res.redirect("/login");
+      res.render("form", {
+        action: "login",
+        buttonLabel: "Login",
+        message: "User registered successfully! Please login to continue.",
+        messageClass: "alert-success",
+      });
     })
     .catch((err) => {
-      res.status(err.code).json(err);
+      res.render("form", {
+        action: "signup",
+        buttonLabel: "Register",
+        message: "User exist already, Please use diffrent email!",
+        messageClass: "alert-danger",
+      });
     });
 });
 
 router.get("/login", (req, res) => {
   res.render("form", {
     action: "login",
-    buttonLabel: "Login",
-    message: "Please login to continue",
-    messageClass: "alert-danger",
+    buttonLabel: "Login"
   });
 });
 
@@ -49,6 +57,14 @@ router.post("/login", async (req, res) => {
     })
     .catch((err) => {
       let code = err && err.code ? err.code : 500;
+      if(code === 401) {
+        res.render("form", {
+          action: "login",
+          buttonLabel: "Login",
+          message: "Email or Password is Invalid!. Please use valid details.",
+          messageClass: "alert-danger",
+        });
+      }
       res.status(code).json(err);
     });
 });

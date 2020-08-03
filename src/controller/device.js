@@ -21,12 +21,12 @@ router.post("/create", async (req, res) => {
   if (allDevices.validDevices.length > 0) {
     await repository
       .createDevice(req.user, allDevices)
-      .then((resp) => (req.moduleResponse = resp))
-      .catch((err) => (req.moduleResponse = response.SERVER_ERROR));
+      .then((resp) => res.status(200).json(resp))
+      .catch((err) =>res.status(err.code).json(err));
   } else {
     let resp = response.BAD_REQUEST;
     resp.message = errMessage;
-    req.moduleResponse = resp;
+    res.status(resp.code).json(resp);
   }
 });
 
@@ -35,27 +35,26 @@ router.post("/share", async (req, res) => {
   let device = req.user.devices.filter((dev) => dev.device_id === deviceId)[0];
   if (device) {
     await repository
-      .share(userId, device)
-      .then((resp) => (req.moduleResponse = resp))
-      .catch((err) => (req.moduleResponse = response.SERVER_ERROR));
+      .shareDevice(userId, device)
+      .then((resp) => res.status(200).json(resp))
+      .catch((err) =>res.status(err.code).json(err));
   } else {
-    req.moduleResponse = response.UN_AUTHORIZED;
+    res.status(401).json(response.UN_AUTHORIZED);
   }
 });
 
 router.get("/read", async (req, res) => {
   let requestData = {};
   if (req.query.deviceName) requestData.name = req.query.deviceName;
-  if (req.query.deviceType) requestData.devType = req.query.type;
-  if (req.query.deviceState) requestData.currentState = req.query.state;
+  if (req.query.type) requestData.devType = req.query.type;
+  if (req.query.state) requestData.currentState = +req.query.state;
+  if (req.query.id) requestData.device_id = req.query.id;
   await repository
-    .getDevices(requestData)
+    .getDevices(req.user, requestData)
     .then((resp) => {
-      console.log("resp : ", resp);
-      resp.data = repository.devices;
-      req.moduleResponse = resp;
+      res.status(200).json(resp);
     })
-    .catch((err) => (req.moduleResponse = response.SERVER_ERROR));
+    .catch((err) =>res.status(err.code).json(err));
 });
 
 router.put("/edit", async (req, res) => {
@@ -66,12 +65,12 @@ router.put("/edit", async (req, res) => {
   if (device) {
     await repository
       .update(requestData, req.body)
-      .then((resp) => (req.moduleResponse = resp))
-      .catch((err) => (req.moduleResponse = response.SERVER_ERROR));
+      .then((resp) => res.status(200).json(resp))
+      .catch((err) =>res.status(err.code).json(err));
   } else {
     let resp = response.BAD_REQUEST;
     resp.message = "Invalid device data!";
-    req.moduleResponse = resp;
+    res.status(resp.code).json(resp);
   }
 });
 
@@ -84,34 +83,31 @@ router.put("/currentState", async (req, res) => {
   if (deviceId) requestData.device_id = deviceId;
   let userHavesPermission = req.user.devices.includes(deviceId);
   if (!userHavesPermission) {
-    req.moduleResponse = response.UN_AUTHORIZED;
+    res.status(401).json(response.UN_AUTHORIZED);
   } else {
     await repository
       .updateDevice(requestData, { currentState: deviceStatus })
-      .then((resp) => (req.moduleResponse = resp))
-      .catch((err) => (req.moduleResponse = response.SERVER_ERROR));
+      .then((resp) => res.status(200).json(resp))
+      .catch((err) =>res.status(err.code).json(err));
   }
 });
 
 router.delete("/delete", async (req, res) => {
   let deviceId = req.query.id;
-  console.log("Id : ", deviceId);
   if (deviceId) {
-    let userHavesPermission = req.user.devices.includes(deviceId);
-    if (userHavesPermission) {
+    let currentDevice = req.user.devices.filter((dev) => dev.device_id === deviceId)[0];
+    if (currentDevice) {
       await repository
         .delete(deviceId)
-        .then((resp) => (req.moduleResponse = resp))
-        .catch((err) => {
-          req.moduleResponse = err;
-        });
+        .then((resp) => res.status(200).json(resp))
+        .catch((err) => res.status(err.code).json(err));
     } else {
-      req.moduleResponse = response.UN_AUTHORIZED;
+      res.status(401).json(response.UN_AUTHORIZED);
     }
   } else {
     let resp = response.BAD_REQUEST;
     resp.message = "Device id required!";
-    req.moduleResponse = resp;
+    res.status(resp.code).json(resp);
   }
 });
 

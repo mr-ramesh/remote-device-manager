@@ -30,22 +30,45 @@ class DeviceRepository {
 
   shareDevice(userId, device) {
     return new Promise(async (resolve, reject) => {
-      await this.userRepository
-        .updateUser({ user_id: userId }, { devices: [device] })
+      let userFilter = { user_id: userId };
+      let newUser = await this.userRepository.getUser(userFilter);
+      console.log("new USer : ", newUser);
+      if(newUser.length > 0) {
+        await this.userRepository
+        .updateUser(userFilter, { devices: [device] })
         .then((resp) => resolve(responseConstants.SUCCESS))
         .catch((err) => reject(err));
+      } else{
+        let resp = responseConstants.FORBIDDEN;
+        resp.message = "User not exists!";
+        reject(resp);
+      }
+      
     });
   }
 
-  getDevices(userId, deviceData) {
+  getDevices(user, deviceData) {
     return new Promise(async (resolve, reject) => {
-      await this.userRepository.getDevice("devices",  deviceData)
-        .then((devices) => {
-          let device = {};
-          if (devices && devices.length > 0) {
-            device = user.devices.filter((dev) => (dev.device_id = deviceId));
+      await this.userRepository
+        .getDevice(user.user_id)
+        .then((users) => {
+          if (users && users.length > 0) {
+            let resultDevices = [];
+            users[0].devices.forEach(device => {
+              let flag = true;
+              Object.keys(deviceData).forEach(field => {
+                if(device[field] != deviceData[field]) {
+                  flag = false;
+                }
+              });
+              if(flag) resultDevices.push(device);
+            });
+            resolve(resultDevices);
+          } else {
+            let resp = responseConstants.SUCCESS;
+            resp.message = "No device found!"
+            resolve(resp);
           }
-          resolve(device);
         })
         .catch((err) => reject(err));
     });

@@ -16,10 +16,14 @@ class UserRepository {
     });
   }
 
-  getDevice(filterField, filterData) {
+  getDevice(userId) {
     return new Promise(async (resolve, reject) => {
-      let query = {};
-      query[filterField] = {"$elemMatch": filterData};
+      // let query = {
+      //   $and: [{ user_id: userId }, { devices: { $elemMatch: deviceData } }],
+      // };
+      let query = {
+        user_id: userId
+      };
       await this.curdRepository
         .read(query)
         .then((resp) => resolve(resp))

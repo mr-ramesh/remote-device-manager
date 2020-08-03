@@ -12,6 +12,7 @@ const connection = new db_connector(environment.db).getConnection();
 const interceptor = require('./src/controller/interceptor');
 const securityRoutes = require('./src/controller/security');
 const deviceRoutes = require('./src/controller/device');
+const exceptionHandler = require('./src/exception/RDCException').exceptionHandler;
 
 //views init
 let viewsPath = __dirname + "/src/views";
@@ -20,7 +21,9 @@ let viewsPath = __dirname + "/src/views";
 const server = require('./server');
 server.init(environment);
 server.addRoutes(null, securityRoutes);
-server.addRoutes(null, interceptor);
+server.addRoutes(null, interceptor.preProcessor);
 server.addRoutes('/device', deviceRoutes);
+//server.addRoutes(null, interceptor.postProcessor);
+//server.addRoutes(null, exceptionHandler);
 server.addView(viewsPath);
 server.finalizeServer();

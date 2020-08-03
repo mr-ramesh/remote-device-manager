@@ -5,38 +5,21 @@ const securityRespository = new SecurtiyRepository();
 
 const RDCException = require("../exception/RDCException");
 
-async function interceptor(req, res, next) {
-  try {
-    await preProcessor(req);
-    await next();
-  } catch (error) {
-    let response = responseCosntants.SERVER_ERROR;
-    if (error instanceof RDCException) {
-      response.code = error.statusCode;
-      response.message = error.message;
-    }
-    req.moduleResponse = response;
-    console.error("Error Response in interceptor : ", response);
-  }
-  postProcessor(req, res);
-}
-
-async function preProcessor(req) {
-  let flag = isAuthenticationRequired(req);
-  if (flag) {
+async function preProcessor(req, res, next) {
+  if (isAuthenticationRequired(req)) {
     if (requestValidator(req)) {
       try {
-        let user = await jwtValidator(req);
-        return (req.user = user);
+        req.user = await jwtValidator(req);
+        next();
       } catch (error) {
-        throw error;
+        next(error);
       }
     } else {
-      throw new RDCException(responseCosntants.UN_AUTHORIZED);
+      next(new RDCException(responseCosntants.UN_AUTHORIZED));
     }
   } else {
-    if (loginAndSignupValidation(req).code === 200) return req;
-    else throw new RDCException(responseCosntants.FORBIDDEN);
+    if (loginAndSignupValidation(req).code === 200) next();
+    else next(new RDCException(responseCosntants.FORBIDDEN));
   }
 }
 
@@ -47,22 +30,6 @@ function isAuthenticationRequired(req) {
 
 function loginAndSignupValidation() {
   return responseCosntants.SUCCESS;
-}
-
-function postProcessor(req, res) {
-  let response = req.moduleResponse;
-  console.log("Here resp : ", response);
-  if (response) {
-    let code = response.code ? response.code : 500;
-    if (code === 401)
-      res.render("form", {
-        action: "login",
-        buttonLabel: "Login",
-        message: "Please login to continue",
-        messageClass: "alert-danger",
-      });
-    else res.status(code).json(response);
-  }
 }
 
 function requestValidator(req) {
@@ -87,4 +54,24 @@ async function validateToken(token) {
   return user;
 }
 
-module.exports = interceptor;
+function postProcessor(req, res) {
+  let response = req.moduleResponse;
+  if (response) {
+    let code = response.code ? response.code : 500;
+    if (code === 401)
+      res.render("form", {
+        action: "login",
+        buttonLabel: "Login",
+        message: "Please login to continue",
+        messageClass: "alert-danger",
+      });
+    else res.status(code).json(response);
+  } else {
+    res.status(500).json(responseCosntants.SERVER_ERROR);
+  }
+}
+
+module.exports = {
+  preProcessor,
+  postProcessor,
+};

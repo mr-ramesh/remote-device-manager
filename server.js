@@ -18,7 +18,7 @@ module.exports = {
   startServer() {
     try {
       app.listen(this.config.server.port, () =>
-        console.log(
+        console.info(
           `Server started with port  ${this.config.server.port} up and running...`
         )
       );
